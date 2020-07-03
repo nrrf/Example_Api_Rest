@@ -3,17 +3,18 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require ('mongoose')
+const Product = require ('./models/product')
+
 
 const app = express() 
 const port = process.env.PORT || 3001
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(express.urlencoded({extended: true}))
 app.use(bodyParser.json())
 
 /*
 app.get('/hola', (req,res) => {
     res.send({message: 'Hola Mundo!'})
 })
-
 */ 
 /*
 app.get('/hola/:name', (req,res) => {
@@ -30,10 +31,23 @@ app.get('/api/product/:productId', (req,res) => {
 
 
 app.post('/api/product', (req,res) => {
+    console.log('POST/Product')
     console.log(req.body)
-    //res.send(200, {message : "El producto se ha recibido"})
-    //res.status(200).send({message : "El producto se ha recibido"})
-    res.status(404).send({message : "El producto no existe"})
+    let product = new Product() 
+    
+    product.name = req.body.name
+    product.picture = req.body.picture
+    product.price = req.body.price
+    product.category = req.body.category
+    product.description = req.body.description
+
+    product.save((err, p) => {
+        if (err){
+            res.status(500).send(`Error al guardar en db ${err}`)
+        }
+        res.status(200).send({product: p})
+
+    })
 })
 
 
@@ -56,5 +70,3 @@ mongoose.connect('mongodb://localhost:27017/shop', (err,res) => {//27017 puerto 
         console.log(`API REST corriendo en http://localhost:${port}`)
     })
 })
-
-
